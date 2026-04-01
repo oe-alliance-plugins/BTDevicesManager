@@ -1,0 +1,18 @@
+{
+  "branch": "main",
+  "depends_recipe": "",
+  "description_control": "this is bt devices manger to pair e.x keyboard or mouse",
+  "description_recipe": "this is bt devices manger to pair e.x keyboard or mouse",
+  "history_source_dir": "BTDevicesManager",
+  "internal_package_name": "enigma2-plugin-extensions-btdevicesmanager",
+  "module_dir_name": "BTDevicesManager",
+  "output_subdir": "BTDevicesManager",
+  "package_name": "enigma2-plugin-extensions-btdevicesmanager",
+  "plugin_src_rel": "BTDevicesManager",
+  "python_package": "BTDevicesManager",
+  "rdepends_recipe": "btinit bluez5-testtools bluez5 bluez-hcidump bluez-conf bluez-hidd bluez-alsa alsa-utils-aplay python3-pexpect",
+  "replaces": "",
+  "repo_name": "BTDevicesManager",
+  "rrecommends": "",
+  "rreplaces": ""
+}
