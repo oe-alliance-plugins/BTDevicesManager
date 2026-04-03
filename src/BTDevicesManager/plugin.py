@@ -1,4 +1,4 @@
-#====================================================
+# ====================================================
 # Bluetooth Devices Manager - basic version
 # Version date - 20.11.2014
 # Coding by a4tech - darezik@gmail.com (oe-alliance)
@@ -15,7 +15,7 @@
 # kernel-module-hid-magicmouse
 # kernel-module-hid-microsoft
 # kernel-module-hid-wacom
-#====================================================
+# ====================================================
 from configparser import ConfigParser
 from datetime import datetime, timedelta
 from os import kill, listdir, system
@@ -152,7 +152,7 @@ class BluetoothDevicesManager(Screen):
 			configFile.read(infoFile)
 			if "General" in configFile and "Services" in configFile["General"]:
 				isAudio = "0000110e-0000-1000-8000-00805f9b34fb" in configFile["General"]["Services"]
-				#isKeyboard = "00001000-0000-1000-8000-00805f9b34fb" in configFile["General"]["Services"]
+				# isKeyboard = "00001000-0000-1000-8000-00805f9b34fb" in configFile["General"]["Services"]
 		return isAudio
 
 	def readDeviceList(self):

@@ -38,8 +38,8 @@ class Bluetoothctl:
         self.isReady = False
         self.isScanning = False
         self._start_thread()
-        #self.max_attempts = 5
-        #self.attempts = 0
+        # self.max_attempts = 5
+        # self.attempts = 0
 
     def _start_thread(self):
         thread = threading.Thread(target=self._start_bluetoothctl)
@@ -57,7 +57,7 @@ class Bluetoothctl:
             pass
 
     def _start_bluetoothctl(self):
-        #while not self.isReady and self.attempts < self.max_attempts:
+        # while not self.isReady and self.attempts < self.max_attempts:
         while not self.isReady:
             print("Trying to start bluetoothctl...")
             self.kill_existing_bluetoothctl()
@@ -69,7 +69,7 @@ class Bluetoothctl:
             except Exception as e:
                 print(f"bluetoothctl start failed: {e}")
                 sleep(2)
-            #self.attempts += 1
+            # self.attempts += 1
 
     def send(self, command, pause=0):
         self.process.send(f"{command}\n")
