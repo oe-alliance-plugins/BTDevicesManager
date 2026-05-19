@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2019-07-23 15:35+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,67 +18,87 @@ msgstr ""
 "X-Generator: Poedit 2.2\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: ../setup.xml
 msgid "Audio Connect"
 msgstr "Connexion audio"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
+#: ../plugin.py:192
 #, fuzzy
 msgid "Audio On"
 msgstr "Connexion audio"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Gestionnaire de périphériques Bluetooth"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Configuration du gestionnaire de périphériques Bluetooth"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "Impossible d’appairer avec l'appareil sélectionné!"
 
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Connecter"
 
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Connected"
 msgstr "Connecter"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Connexion avec :\n"
 
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Déconnecter"
 
+#: ../plugin.py:256
 msgid "Disconnect with:\n"
 msgstr "Déconnecter avec:\n"
 
+#: ../plugin.py:294
 #, fuzzy
 msgid "Disconnecting please wait..."
 msgstr "Déconnecter avec:\n"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Quitter"
 
-msgid "Not connected to any device"
-msgstr "Non connecté à aucun appareil"
-
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Not connected"
 msgstr "Non connecté à aucun appareil"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "Non connecté à aucun appareil"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr "Entrer la Passkey: \n"
 
+#: ../plugin.py:112
 #, fuzzy
 msgid "Scan"
 msgstr "(Re)Scanner"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Recherche d'appareils....."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "C'est le gestionnaire de périphériques bt"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Essai d’appairage avec:"

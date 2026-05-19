@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BTDevicesManager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2016-05-07 13:09+0200\n"
 "Last-Translator: neoatomic <neoatomic@users.noreply.github.com>\n"
 "Language-Team: openspa <openspa.info>\n"
@@ -12,69 +12,89 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7\n"
 
+#: ../setup.xml
 #, fuzzy
 msgid "Audio Connect"
 msgstr "Conectar"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
+#: ../plugin.py:192
 #, fuzzy
 msgid "Audio On"
 msgstr "Conectar"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Gestor de dipositivos Bluetooth"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Configuración del gestor de dipos. bluetooth"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "No se puede emparejar con este dispositivo."
 
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Conectar"
 
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Connected"
 msgstr "Conectar"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Conectado con:\n"
 
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Desconectar"
 
+#: ../plugin.py:256
 #, fuzzy
 msgid "Disconnect with:\n"
 msgstr "Conectado con:\n"
 
+#: ../plugin.py:294
 #, fuzzy
 msgid "Disconnecting please wait..."
 msgstr "Conectado con:\n"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Salir"
 
-msgid "Not connected to any device"
-msgstr "No se ha conectado a ningún dispositivo"
-
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Not connected"
 msgstr "No se ha conectado a ningún dispositivo"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "No se ha conectado a ningún dispositivo"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr ""
 
+#: ../plugin.py:112
 #, fuzzy
 msgid "Scan"
 msgstr "(Re)escanear"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Buscando dispositivos..."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "Gestión de los dispositivos Bluetooth"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Intentando emparejar con:"

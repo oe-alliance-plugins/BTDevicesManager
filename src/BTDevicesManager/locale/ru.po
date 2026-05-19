@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tuxbox-enigma 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2024-09-22 23:16+0300\n"
 "Last-Translator: Viacheslav Dikonov <sdiconov@mail.ru>\n"
 "Language-Team: openATV\n"
@@ -17,71 +17,91 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #
+#: ../setup.xml
 msgid "Audio Connect"
 msgstr "Подключить"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
 #
+#: ../plugin.py:192
 #, fuzzy
 msgid "Audio On"
 msgstr "Подключить"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Менеджер Bluetooth-устройств"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Настройка менеджера Bluetooth-устройств"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "Невозможно соединиться с выбранным устройством!"
 
 #
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Соединиться"
 
 #
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Connected"
 msgstr "Соединиться"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Соединение с:\n"
 
 #
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Отсоединить"
 
+#: ../plugin.py:256
 msgid "Disconnect with:\n"
 msgstr "Отсоединить от:\n"
 
+#: ../plugin.py:294
 #, fuzzy
 msgid "Disconnecting please wait..."
 msgstr "Отсоединить от:\n"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Выход"
 
-msgid "Not connected to any device"
-msgstr "Нет соединения ни с одним устройством"
-
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Not connected"
 msgstr "Нет соединения ни с одним устройством"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "Нет соединения ни с одним устройством"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr "Введите пин-код:\n"
 
+#: ../plugin.py:112
 #, fuzzy
 msgid "Scan"
 msgstr "(Пере)сканировать"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Поиск устройств..."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "Это менеджер Bluetooth-устройств"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Попытка соединения с:"

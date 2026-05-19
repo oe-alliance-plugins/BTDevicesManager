@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: BTDevicesManager 1.1\n"
+"Project-Id-Version: BTDevicesManager\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,62 +17,82 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: ../setup.xml
 msgid "Audio Connect"
 msgstr ""
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
+#: ../plugin.py:192
 msgid "Audio On"
 msgstr ""
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr ""
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr ""
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr ""
 
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr ""
 
+#: ../plugin.py:171 ../plugin.py:233
 msgid "Connected"
 msgstr ""
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr ""
 
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr ""
 
+#: ../plugin.py:256
 msgid "Disconnect with:\n"
 msgstr ""
 
+#: ../plugin.py:294
 msgid "Disconnecting please wait..."
 msgstr ""
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr ""
 
-msgid "Not connected to any device"
-msgstr ""
-
+#: ../plugin.py:171 ../plugin.py:233
 msgid "Not connected"
 msgstr ""
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr ""
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr ""
 
+#: ../plugin.py:112
 msgid "Scan"
 msgstr ""
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr ""
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr ""
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr ""

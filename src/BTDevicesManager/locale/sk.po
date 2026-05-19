@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2018-10-14 12:58+0200\n"
 "Last-Translator: Ladislav Zilzi, zilizila@gmail.sk\n"
 "Language: sk_SK\n"
@@ -14,73 +14,93 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #
+#: ../setup.xml
 #, fuzzy
 msgid "Audio Connect"
 msgstr "Pripojiť"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
 #
+#: ../plugin.py:192
 #, fuzzy
 msgid "Audio On"
 msgstr "Pripojiť"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Bluetooth Devices Manager"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Bluetooth Devices Manager - Nastavenie"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "Nie je možné spárovať s vybraným zariadením!"
 
 #
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Pripojiť"
 
 #
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Connected"
 msgstr "Pripojiť"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Pripojenie s:\n"
 
 #
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Odpojiť"
 
+#: ../plugin.py:256
 #, fuzzy
 msgid "Disconnect with:\n"
 msgstr "Pripojenie s:\n"
 
+#: ../plugin.py:294
 #, fuzzy
 msgid "Disconnecting please wait..."
 msgstr "Pripojenie s:\n"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Skončiť"
 
-msgid "Not connected to any device"
-msgstr "Žiadne zariadenie nie je pripojené"
-
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Not connected"
 msgstr "Žiadne zariadenie nie je pripojené"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "Žiadne zariadenie nie je pripojené"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr ""
 
+#: ../plugin.py:112
 #, fuzzy
 msgid "Scan"
 msgstr "Prehľadať"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Hľadanie zariadení..."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "Správca pre BT zariadenia"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Pokus o párovanie s:"

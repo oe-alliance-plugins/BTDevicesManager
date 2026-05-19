@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BTDevicesManager 1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2025-03-30 22:14+0200\n"
 "Last-Translator: madhouse\n"
 "Language-Team: \n"
@@ -12,62 +12,82 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.5\n"
 
+#: ../setup.xml
 msgid "Audio Connect"
 msgstr "Connessione audio"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr "Audio Off"
 
+#: ../plugin.py:192
 msgid "Audio On"
 msgstr "Audio On"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Gestione dispositivi Bluetooth"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Configurazione Gestione dispositivi Bluetooth"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "Impossibile associare il dispositivo selezionato!"
 
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Collega"
 
+#: ../plugin.py:171 ../plugin.py:233
 msgid "Connected"
 msgstr "Connesso"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Connessione con:\n"
 
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Disconnetti"
 
+#: ../plugin.py:256
 msgid "Disconnect with:\n"
 msgstr "Disconnettiti con:\n"
 
+#: ../plugin.py:294
 msgid "Disconnecting please wait..."
 msgstr "Disconnessione in corso…"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Esci"
 
-msgid "Not connected to any device"
-msgstr "Non connesso a nessun dispositivo"
-
+#: ../plugin.py:171 ../plugin.py:233
 msgid "Not connected"
 msgstr "Non connesso"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "Non connesso a nessun dispositivo"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr "Inserisci la passkey:\n"
 
+#: ../plugin.py:112
 msgid "Scan"
 msgstr "Scansiona"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Attendi durante la scansione delle periferiche..."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "Questo è il gestore dei dispositivi BT"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Tentativo di abbinamento con:"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 20:16+0100\n"
+"POT-Creation-Date: 2026-04-08 10:12+0200\n"
 "PO-Revision-Date: 2017-01-12 13:44+0200\n"
 "Last-Translator: MCelliot_g <mcelliot_g@hotmail.com>\n"
 "Language-Team: \n"
@@ -20,69 +20,89 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
+#: ../setup.xml
 #, fuzzy
 msgid "Audio Connect"
 msgstr "Σύνδεση"
 
+#: ../plugin.py:192
 msgid "Audio Off"
 msgstr ""
 
+#: ../plugin.py:192
 #, fuzzy
 msgid "Audio On"
 msgstr "Σύνδεση"
 
+#: ../plugin.py:97 ../plugin.py:381
 msgid "Bluetooth Devices Manager"
 msgstr "Διαχείριση Συσκευών Bluetooth"
 
+#: ../setup.xml
 msgid "Bluetooth Devices Manager Setup"
 msgstr "Ρυθμίσεις Διαχείρισης Συσκευών Bluetooth"
 
+#: ../plugin.py:210 ../plugin.py:268 ../plugin.py:285
 msgid "Can't not pair with selected device!"
 msgstr "Αδυναμία σύζευξης με την επιλεγμένη συσκευή!"
 
+#: ../plugin.py:113 ../plugin.py:190 ../plugin.py:258
 msgid "Connect"
 msgstr "Σύνδεση"
 
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Connected"
 msgstr "Σύνδεση"
 
+#: ../plugin.py:217 ../plugin.py:280
 msgid "Connection with:\n"
 msgstr "Σύνδεση με:\n"
 
+#: ../plugin.py:190 ../plugin.py:218 ../plugin.py:282
 msgid "Disconnect"
 msgstr "Αποσύνδεση"
 
+#: ../plugin.py:256
 #, fuzzy
 msgid "Disconnect with:\n"
 msgstr "Σύνδεση με:\n"
 
+#: ../plugin.py:294
 #, fuzzy
 msgid "Disconnecting please wait..."
 msgstr "Σύνδεση με:\n"
 
+#: ../plugin.py:111
 msgid "Exit"
 msgstr "Έξοδος"
 
-msgid "Not connected to any device"
-msgstr "Δεν έχει συνδεθεί συσκευή"
-
+#: ../plugin.py:171 ../plugin.py:233
 #, fuzzy
 msgid "Not connected"
 msgstr "Δεν έχει συνδεθεί συσκευή"
 
+#: ../plugin.py:115 ../plugin.py:181
+msgid "Not connected to any device"
+msgstr "Δεν έχει συνδεθεί συσκευή"
+
+#: ../plugin.py:273
 msgid "Please Enter Passkey: \n"
 msgstr ""
 
+#: ../plugin.py:112
 #, fuzzy
 msgid "Scan"
 msgstr "(Επαν)ανίχνευση"
 
+#: ../plugin.py:201
 msgid "Scanning for devices..."
 msgstr "Ανίχνευση για συσκευές..."
 
+#: ../plugin.py:381
 msgid "This is bt devices manager"
 msgstr "Διαχειριστής συσκευών bt"
 
+#: ../plugin.py:298
 msgid "Trying to pair with:"
 msgstr "Προσπάθεια σύζευξης με:"
