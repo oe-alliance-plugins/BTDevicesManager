@@ -23,59 +23,130 @@
 
 from pexpect import EOF, TIMEOUT, spawnu
 from re import compile
-from subprocess import check_output, CalledProcessError
-from time import sleep
-from os import kill
+from subprocess import check_output
+from time import monotonic, sleep
 import threading
 
 
 class Bluetoothctl:
     """A wrapper for bluetoothctl utility."""
 
+    max_start_attempts = 3
+    retry_delay = 2
+    retry_cooldown = 60
+
     def __init__(self):
-        check_output("rfkill unblock bluetooth", shell=True)
         self.process = None
         self.isReady = False
         self.isScanning = False
-        self._start_thread()
-        # self.max_attempts = 5
-        # self.attempts = 0
-
-    def _start_thread(self):
-        thread = threading.Thread(target=self._start_bluetoothctl)
-        thread.daemon = True
-        thread.start()
-
-    def kill_existing_bluetoothctl(self):
+        self.passkey = None
+        self.start_error = None
+        self.next_retry_at = 0
+        self.start_thread = None
+        self.start_lock = threading.Lock()
         try:
-            output = check_output("pgrep bluetoothctl", shell=True).decode().strip()
-            for pid in output.splitlines():
-                print(f"Killing leftover bluetoothctl process {pid}")
-                kill(int(pid), 9)
-        except CalledProcessError:
-            # pgrep returns non-zero if no process found, which is fine
+            check_output("rfkill unblock bluetooth", shell=True)
+        except Exception as e:
+            self.start_error = f"rfkill unblock bluetooth failed: {e}"
+            print(f"[BluetoothManager] {self.start_error}")
+        self._start_thread()
+
+    def _start_thread(self, force=False):
+        now = monotonic()
+        if not force and self.next_retry_at and now < self.next_retry_at:
+            return False
+        if self.start_thread and self.start_thread.is_alive():
+            return True
+        self.start_thread = threading.Thread(target=self._start_bluetoothctl, name="BTDevicesManager.bluetoothctl")
+        self.start_thread.daemon = True
+        self.start_thread.start()
+        return True
+
+    def _close_process(self, process=None):
+        process = process or self.process
+        if process is None:
+            return
+        try:
+            process.close(force=True)
+        except Exception:
             pass
+        if process is self.process:
+            self.process = None
+            self.isReady = False
+
+    def _format_start_error(self, error, process=None):
+        before = getattr(process, "before", "")
+        if before:
+            before = before.replace("\r\n", "\n").strip()
+            if before:
+                return f"{error}: {before[-300:]}"
+        return str(error)
 
     def _start_bluetoothctl(self):
-        # while not self.isReady and self.attempts < self.max_attempts:
-        while not self.isReady:
-            print("Trying to start bluetoothctl...")
-            self.kill_existing_bluetoothctl()
-            try:
-                self.process = spawnu("bluetoothctl", echo=False)
-                self.process.expect("Agent registered", timeout=10)
-                self.isReady = True
-                print("bluetoothctl is ready.")
-            except Exception as e:
-                print(f"bluetoothctl start failed: {e}")
-                sleep(2)
-            # self.attempts += 1
+        with self.start_lock:
+            if self.isReady and self.process and self.process.isalive():
+                return
+            self._close_process()
+
+            for attempt in range(1, self.max_start_attempts + 1):
+                process = None
+                print(f"Trying to start bluetoothctl ({attempt}/{self.max_start_attempts})...")
+                try:
+                    process = spawnu("bluetoothctl", echo=False, timeout=10)
+                    result = process.expect(["Agent registered", r"\[bluetooth\]#", EOF, TIMEOUT], timeout=10)
+                    if result in (0, 1):
+                        self.process = process
+                        self.isReady = True
+                        self.start_error = None
+                        self.next_retry_at = 0
+                        print("bluetoothctl is ready.")
+                        return
+                    self.start_error = "bluetoothctl exited before it was ready"
+                    self._close_process(process)
+                except Exception as e:
+                    self.start_error = self._format_start_error(e, process)
+                    self._close_process(process)
+                    print(f"bluetoothctl start failed: {self.start_error}")
+                sleep(self.retry_delay)
+
+            self.next_retry_at = monotonic() + self.retry_cooldown
+            print(f"bluetoothctl is not ready; retrying is paused for {self.retry_cooldown} seconds.")
+
+    def is_ready(self, timeout=0):
+        if self.isReady and self.process and self.process.isalive():
+            return True
+
+        self.isReady = False
+        self._start_thread()
+        end_time = monotonic() + timeout
+        while timeout and monotonic() < end_time:
+            if self.isReady and self.process and self.process.isalive():
+                return True
+            if self.start_thread and not self.start_thread.is_alive():
+                break
+            sleep(0.1)
+        return self.isReady and self.process and self.process.isalive()
+
+    def get_start_error(self):
+        return self.start_error or "bluetoothctl is not ready"
 
     def send(self, command, pause=0):
-        self.process.send(f"{command}\n")
-        sleep(pause)
-        if self.process.expect(["#", EOF, TIMEOUT]):
-            raise Exception(f"bluetoothctl failed after {command}")
+        if not self.is_ready(timeout=5):
+            raise Exception(self.get_start_error())
+
+        try:
+            self.process.send(f"{command}\n")
+            sleep(pause)
+            result = self.process.expect(["#", EOF, TIMEOUT], timeout=10)
+            if result:
+                self.isReady = True
+                if result == 1:
+                    self._close_process()
+                raise Exception(f"bluetoothctl failed after {command}")
+        except Exception:
+            if self.process is None or not self.process.isalive():
+                self._close_process()
+            raise
 
     def get_output(self, *args, **kwargs):
         """Run a command in bluetoothctl prompt, return output as a list of lines."""
