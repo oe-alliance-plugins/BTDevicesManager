@@ -34,6 +34,8 @@ class Bluetoothctl:
     max_start_attempts = 3
     retry_delay = 2
     retry_cooldown = 60
+    prompt = compile(r"\[[^\]\r\n]+\][#>]\s*(?:\x1b\[[0-9;]*m)?")
+    ansi_escape = compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 
     def __init__(self):
         self.process = None
@@ -93,8 +95,13 @@ class Bluetoothctl:
                 print(f"Trying to start bluetoothctl ({attempt}/{self.max_start_attempts})...")
                 try:
                     process = spawnu("bluetoothctl", echo=False, timeout=10)
-                    result = process.expect(["Agent registered", r"\[bluetooth\]#", EOF, TIMEOUT], timeout=10)
+                    result = process.expect(["Agent registered", self.prompt, EOF, TIMEOUT], timeout=10)
                     if result in (0, 1):
+                        # BlueZ 5.87 emits its first prompt only after input; consume
+                        # it so command output is not shifted by one request.
+                        process.send("\n")
+                        if process.expect([self.prompt, EOF, TIMEOUT], timeout=10):
+                            raise RuntimeError("bluetoothctl prompt not available")
                         self.process = process
                         self.isReady = True
                         self.start_error = None
@@ -137,9 +144,9 @@ class Bluetoothctl:
         try:
             self.process.send(f"{command}\n")
             sleep(pause)
-            result = self.process.expect(["#", EOF, TIMEOUT], timeout=10)
+            result = self.process.expect([self.prompt, EOF, TIMEOUT], timeout=10)
             if result:
-                self.isReady = True
+                self.isReady = False
                 if result == 1:
                     self._close_process()
                 raise Exception(f"bluetoothctl failed after {command}")
@@ -187,6 +194,9 @@ class Bluetoothctl:
         device = {}
         block_list = ["[\x1b[0;", "removed"]
         if not any(keyword in info_string for keyword in block_list):
+            # BlueZ 5.87 wraps devices that advertise as non-discoverable in
+            # COLOR_BOLDGRAY, which would otherwise end up in the name.
+            info_string = self.ansi_escape.sub("", info_string)
             try:
                 device_position = info_string.index("Device")
             except ValueError:
@@ -277,8 +287,7 @@ class Bluetoothctl:
                 res = self.process.expect(["Request confirmation", EOF])
                 return res == 0
             elif res in [2, 3]:
-                ansi_escape = compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-                self.passkey = ansi_escape.sub('', str(self.process.buffer))
+                self.passkey = self.ansi_escape.sub('', str(self.process.buffer))
                 return False
             else:
                 print(f"Failed to pair. Res = {res}")
@@ -332,9 +341,10 @@ class Bluetoothctl:
             return False
         else:
             res = self.process.expect(
-                ["Failed to disconnect", "Successful disconnected", EOF]
+                # BlueZ renamed the message after 5.70; keep both spellings.
+                ["Failed to disconnect", "Disconnection successful", "Successful disconnected", EOF]
             )
-            return res == 1
+            return res in (1, 2)
 
     def agent_noinputnooutput(self):
         """Start agent"""
