@@ -67,7 +67,7 @@ def applyBTAudioState():
 
 	commandconnect = resolveFilename(SCOPE_CURRENT_PLUGIN, "Extensions/BTDevicesManager/BTAudioConnect")
 	audioaddress = config.btdevicesmanager.audioaddress.value
-	audioaddress = f" {audioaddress}" if audioaddress and config.btdevicesmanager.audioconnect.value else ""
+	audioaddress = f" {audioaddress}" if newState == "on" and audioaddress and config.btdevicesmanager.audioconnect.value else ""
 	system(f"{commandconnect}{audioaddress} &")
 
 

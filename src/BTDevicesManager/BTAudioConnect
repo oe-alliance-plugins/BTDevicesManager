@@ -5,9 +5,69 @@ DBUS_INIT=/etc/init.d/dbus-1
 BLUETOOTH_INIT=/etc/init.d/bluetooth
 DBUS_WAS_STARTED=0
 RETRY_SECONDS=30
+PLAYBACK_PIDFILE=/var/run/aplay.pid
+CAPTURE_PIDFILE=/var/run/btaudio-arecord.pid
+STREAM_TOKENFILE=/var/run/btaudio-stream.id
+
+# BTInit and Enigma2 can request a connection at the same time. Children must
+# close this descriptor so playback does not keep the setup lock held.
+exec 9>/var/run/btaudio-connect.lock
+flock -w 10 9 || exit 1
 
 log() {
     logger -t "$LOG_TAG" "$1"
+}
+
+pcm_process_running() {
+    case "$1" in
+        ''|*[!0-9]*|0|1) return 1 ;;
+    esac
+    [ -r "/proc/$1/cmdline" ] || return 1
+    # A stale PID file must not cause us to signal an unrelated process.
+    tr '\000' '\n' < "/proc/$1/cmdline" | grep -Fxq -- "$2"
+}
+
+stop_pcm() {
+    pcm_pid=$(cat "$1" 2>/dev/null)
+    if pcm_process_running "$pcm_pid" "$1"; then
+        log "Stopping audio process (PID: $pcm_pid)"
+        kill "$pcm_pid" 2>/dev/null
+        for stop_wait in 1 2 3; do
+            pcm_process_running "$pcm_pid" "$1" || break
+            sleep 1
+        done
+        if pcm_process_running "$pcm_pid" "$1"; then
+            kill -KILL "$pcm_pid" 2>/dev/null
+        fi
+    fi
+    rm -f "$1"
+}
+
+capture_audio() {
+    # The BCM capture driver may return EFAULT while the first service is
+    # starting. Keep the playback pipe open and reopen capture in that case.
+    # This is bounded startup recovery, not a permanent polling watchdog.
+    capture_attempt=0
+    while :; do
+        [ "$(cat "$STREAM_TOKENFILE" 2>/dev/null)" = "$1" ] || return 0
+        arecord -q -f dat -t raw --process-id-file "$CAPTURE_PIDFILE"
+        capture_status=$?
+        [ "$capture_status" -eq 1 ] || return "$capture_status"
+        capture_attempt=$((capture_attempt+1))
+        if [ "$capture_attempt" -ge 10 ]; then
+            log "Audio capture failed repeatedly; stopping the stream"
+            return 1
+        fi
+        playback_pid=$(cat "$PLAYBACK_PIDFILE" 2>/dev/null)
+        pcm_process_running "$playback_pid" "$PLAYBACK_PIDFILE" || return 0
+        [ "$(cat /proc/stb/audio/btaudio 2>/dev/null)" = on ] || return 0
+        log "Audio capture not ready; retry $capture_attempt/9"
+        sleep 1
+        # Do not revive capture after the user stopped or replaced playback.
+        [ "$(cat "$STREAM_TOKENFILE" 2>/dev/null)" = "$1" ] || return 0
+        pcm_process_running "$playback_pid" "$PLAYBACK_PIDFILE" || return 0
+        [ "$(cat /proc/stb/audio/btaudio 2>/dev/null)" = on ] || return 0
+    done
 }
 
 dbus_ready() {
@@ -86,25 +146,17 @@ EOF
 log "Added Bluetooth device '$2' ($1) to /etc/asound.conf"
 }
 
-log "Checking for existing aplay process"
-if [ -f /var/run/aplay.pid ]; then
-    PID=$(cat /var/run/aplay.pid)
-    log "Stopping existing aplay process (PID: $PID)"
-    kill $PID
-    while ps -p $PID > /dev/null; do
-        sleep 1
-    done
-    log "Previous aplay process stopped"
-fi
+rm -f "$STREAM_TOKENFILE"
+stop_pcm "$PLAYBACK_PIDFILE"
+stop_pcm "$CAPTURE_PIDFILE"
 
 log "Applying default sound configuration"
 default_asoundconf
 
-start_dbus || exit 1
-start_bluetoothd || exit 1
-
 if [ -n "$1" ]; then
-    bluetoothaddr="$@"
+    start_dbus || exit 1
+    start_bluetoothd || exit 1
+    bluetoothaddr="$1"
     log "Bluetooth address provided: $bluetoothaddr"
 
     if ! bluetoothctl info "$bluetoothaddr" >/dev/null 2>&1; then
@@ -113,7 +165,15 @@ if [ -n "$1" ]; then
     fi
 
     log "Connecting to Bluetooth device: $bluetoothaddr"
-    bluetoothctl connect "$bluetoothaddr"
+    if ! timeout 20 bluetoothctl connect "$bluetoothaddr"; then
+        log "Error: Could not connect to Bluetooth device $bluetoothaddr"
+        exit 1
+    fi
+
+    if ! bluetoothctl info "$bluetoothaddr" | grep -q 'Connected: yes'; then
+        log "Error: Bluetooth device $bluetoothaddr is not connected"
+        exit 1
+    fi
     
     if ! bluetoothctl info "$bluetoothaddr" | grep -q "Audio Sink"; then
         log "Error: No Audio Sink profile found for $bluetoothaddr"
@@ -126,7 +186,8 @@ if [ -n "$1" ]; then
     bluetooth_asoundconf "$bluetoothaddr" "$bluetoothname"
 
     log "Starting audio streaming to Bluetooth device"
-    arecord -q -f dat -t raw | aplay -q -f dat --buffer-size=16384 --period-size=2048 -t raw -D bluetooth --process-id-file /var/run/aplay.pid &
+    printf '%s\n' "$$" > "$STREAM_TOKENFILE"
+    capture_audio "$$" 9>&- | aplay -q -f dat --buffer-size=16384 --period-size=2048 -t raw -D bluetooth --process-id-file "$PLAYBACK_PIDFILE" 9>&- &
 else
     log "No Bluetooth address provided, exiting"
 fi
