@@ -273,9 +273,12 @@ class BluetoothDevicesManager(Screen):
 				msg = _("Please Enter Passkey: \n") + iBluetoothctl.passkey
 				self["ConnStatus"].setText(msg)
 				self.refreshStatusTimer.start(5000, True)
-				return
-		iBluetoothctl.trust(mac_address)
-		ret = iBluetoothctl.connect(mac_address)
+			return
+		try:
+			ret = iBluetoothctl.trust(mac_address) and iBluetoothctl.connect(mac_address)
+		except Exception as e:
+			print(f"[BluetoothManager] Error Connect: {name} / {mac_address} / {e}")
+			ret = False
 		if ret:
 			msg = _("Connection with:\n") + name
 			self["ConnStatus"].setText(msg)

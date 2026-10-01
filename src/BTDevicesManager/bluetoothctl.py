@@ -160,6 +160,36 @@ class Bluetoothctl:
         self.send(*args, **kwargs)
         return self.process.before.split("\r\n")
 
+    def expectResult(self, patterns):
+        """Read the command result, including output already consumed by send()."""
+        # Confirmation needs an interactive user decision, not an automatic yes.
+        confirmation = "Request confirmation"
+        output = self.ansi_escape.sub("", self.process.before or "")
+        if confirmation in output:
+            raise RuntimeError("Bluetooth pairing requires confirmation; cancelling the attempt")
+        for index, pattern in enumerate(patterns):
+            if compile(pattern).search(output):
+                return index
+        result = self.process.expect(patterns + [confirmation], timeout=10)
+        if result == len(patterns):
+            raise RuntimeError("Bluetooth pairing requires confirmation; cancelling the attempt")
+        return result
+
+    def commandFailed(self, command, error):
+        if isinstance(error, TIMEOUT):
+            reason = "timeout waiting for bluetoothctl"
+        elif isinstance(error, EOF):
+            reason = "bluetoothctl exited unexpectedly"
+        else:
+            reason = str(error)
+        print(f"[BluetoothManager] {command} failed: {reason}")
+        self.passkey = None
+        self.isReady = False
+        self.isScanning = False
+        # Discard pending agent questions and late responses before another try.
+        self._close_process()
+        return False
+
     def start_scan(self):
         """Start bluetooth scanning process."""
         try:
@@ -267,84 +297,60 @@ class Bluetoothctl:
 
     def pair(self, mac_address):
         """Try to pair with a device by mac address."""
-        if mac_address in [x['mac_address'] for x in self.get_paired_devices()]:
-            return True
         self.passkey = None
         try:
+            if mac_address in [x['mac_address'] for x in self.get_paired_devices()]:
+                return True
             self.send(f"pair {mac_address}", 4)
-        except Exception as e:
-            print(e)
-            return False
-        else:
-            res = self.process.expect(["Failed to pair", "Pairing successful", "Passkey: ", "PIN code: ", "Request authorization", EOF])
+            res = self.expectResult(["Failed to pair", "Pairing successful", "Passkey: ", "PIN code: ", "Request authorization"])
             if res == 1:
                 return True
             elif res == 4:
                 self.send("yes")
-                sleep(2)
-                if mac_address in [x['mac_address'] for x in self.get_paired_devices()]:
-                    return True
-                res = self.process.expect(["Request confirmation", EOF])
-                return res == 0
+                return self.expectResult(["Failed to pair", "Pairing successful"]) == 1
             elif res in [2, 3]:
-                self.passkey = self.ansi_escape.sub('', str(self.process.buffer))
+                output = self.ansi_escape.sub("", self.process.before or "")
+                passkey = compile(r"(?:Passkey|PIN code):[ \t]*([^\r\n]*)").search(output)
+                self.passkey = passkey.group(1).strip() if passkey else self.ansi_escape.sub('', str(self.process.buffer)).strip()
                 return False
             else:
                 print(f"Failed to pair. Res = {res}")
                 return False
+        except Exception as e:
+            return self.commandFailed("Pair", e)
 
     def trust(self, mac_address):
         """Trust the device with the given MAC address"""
         try:
             self.get_output(f"trust {mac_address}")
+            return self.expectResult([".*not available\r\n", "trust succe"]) == 1
         except Exception as e:
-            print(e)
-            return False
-        else:
-            res = self.process.expect(
-                [".*not available\r\n", "trust succe", EOF]
-            )
-            return res == 1
+            return self.commandFailed("Trust", e)
 
     def remove(self, mac_address):
         """Remove paired device by mac address, return success of the operation."""
         try:
             self.send(f"remove {mac_address}", 3)
+            return self.expectResult(["not available", "Device has been removed"]) == 1
         except Exception as e:
-            print(e)
-            return False
-        else:
-            res = self.process.expect(
-                ["not available", "Device has been removed", EOF]
-            )
-            return res == 1
+            return self.commandFailed("Remove", e)
 
     def connect(self, mac_address):
         """Try to connect to a device by mac address."""
         try:
             self.send(f"connect {mac_address}", 2)
+            return self.expectResult(["Failed to connect", "Connection successful"]) == 1
         except Exception as e:
-            print(e)
-            return False
-        else:
-            res = self.process.expect(
-                ["Failed to connect", "Connection successful", EOF]
-            )
-            return res == 1
+            return self.commandFailed("Connect", e)
 
     def disconnect(self, mac_address):
         """Try to disconnect to a device by mac address."""
         try:
             self.send(f"disconnect {mac_address}", 2)
+            # BlueZ renamed the message after 5.70; keep both spellings.
+            return self.expectResult(["Failed to disconnect", "Disconnection successful", "Successful disconnected"]) in (1, 2)
         except Exception as e:
-            print(e)
-            return False
-        else:
-            res = self.process.expect(
-                # BlueZ renamed the message after 5.70; keep both spellings.
-                ["Failed to disconnect", "Disconnection successful", "Successful disconnected", EOF]
-            )
-            return res in (1, 2)
+            return self.commandFailed("Disconnect", e)
 
     def agent_noinputnooutput(self):
         """Start agent"""
