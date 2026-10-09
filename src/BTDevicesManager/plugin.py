@@ -23,12 +23,15 @@ from os.path import join, isdir, isfile
 from signal import SIGUSR2
 from twisted.internet.reactor import callInThread
 
-from enigma import eTimer, iPlayableService
+from enigma import eServiceReference, eTimer, iPlayableService
+
+import NavigationInstance
 
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigText, ConfigSubsection, ConfigYesNo
+from Components.Console import Console
 from Components.MenuList import MenuList
 from Components.ServiceEventTracker import ServiceEventTracker
 from Plugins.Plugin import PluginDescriptor
@@ -44,9 +47,73 @@ config.btdevicesmanager.autostart = ConfigYesNo(default=False)
 config.btdevicesmanager.audioconnect = ConfigYesNo(default=False)
 config.btdevicesmanager.audioaddress = ConfigText(default="", fixed_size=False)
 
+BTAUDIO_PROC = "/proc/stb/audio/btaudio"
+
+
+def isSoftBTAudio():
+	# Dreambox One/Two decode audio in software; enigma2 plays to the
+	# Bluetooth ALSA sink when the audio source is set to Bluetooth.
+	try:
+		with open("/usr/lib/enigma.info") as fd:
+			for line in fd:
+				if line.startswith("model="):
+					return line.split("=", 1)[1].strip().strip("'\"") in ("dreamone", "dreamtwo")
+	except OSError:
+		pass
+	return False
+
+
+SOFT_BTAUDIO = isSoftBTAudio()
+softBTAudioConsole = Console()
+
+
+def setSoftBTAudioOutput(enabled):
+	audioSource = getattr(config.av, "audio_source", None)
+	if audioSource is None:
+		return
+	previous = audioSource.value
+	if enabled:
+		audioSource.value = "2"
+	elif audioSource.value == "2":
+		audioSource.value = "0"
+	audioSource.save()
+	if audioSource.value != previous:
+		restartMediaService()
+
+
+def restartMediaService():
+	# DVB follows the audio source on the fly, the GStreamer sink only picks
+	# its ALSA device when the service starts.
+	nav = NavigationInstance.instance
+	ref = nav and nav.getCurrentlyPlayingServiceReference()
+	if ref and ref.type != eServiceReference.idDVB:
+		nav.restartService()
+
+
+def softBTAudioConnected(result, retval, extraArgs=None):
+	if retval == 0:
+		setSoftBTAudioOutput(True)
+	else:
+		print(f"[BluetoothManager] Bluetooth audio connect failed: {retval}")
+
+
+def applySoftBTAudioState():
+	config.btdevicesmanager.audioaddress.save()
+	config.btdevicesmanager.audioconnect.save()
+	commandconnect = resolveFilename(SCOPE_CURRENT_PLUGIN, "Extensions/BTDevicesManager/BTAudioConnect")
+	audioaddress = config.btdevicesmanager.audioaddress.value if config.btdevicesmanager.audioconnect.value else ""
+	if audioaddress:
+		softBTAudioConsole.ePopen(f"{commandconnect} {audioaddress}", softBTAudioConnected)
+	else:
+		setSoftBTAudioOutput(False)
+		softBTAudioConsole.ePopen(commandconnect)
+
 
 def applyBTAudioState():
-	if not isfile("/proc/stb/audio/btaudio"):
+	if SOFT_BTAUDIO:
+		applySoftBTAudioState()
+		return
+	if not isfile(BTAUDIO_PROC):
 		return
 
 	newState = "off"
@@ -60,7 +127,7 @@ def applyBTAudioState():
 		config.av.btaudio.save()
 
 	try:
-		with open("/proc/stb/audio/btaudio", "w") as fn:
+		with open(BTAUDIO_PROC, "w") as fn:
 			fn.write(newState)
 	except Exception as e:
 		print(f"[BluetoothManager] Error writing btaudio: {e}")
@@ -125,7 +192,7 @@ class BluetoothDevicesManager(Screen):
 
 		self.cb_mac_address = None
 		self.cb_name = None
-		self.hasBTAudio = isfile("/proc/stb/audio/btaudio")
+		self.hasBTAudio = isfile(BTAUDIO_PROC) or SOFT_BTAUDIO
 		self["audioActions"].setEnabled(self.hasBTAudio)
 		self.rootDir = "/var/lib/bluetooth"
 		self.controlerPath = None
@@ -310,11 +377,13 @@ class BluetoothDevicesManager(Screen):
 				if config.btdevicesmanager.audioaddress.value == current[1]:
 					config.btdevicesmanager.audioaddress.value = ""
 					config.btdevicesmanager.audioconnect.value = False
-					config.av.btaudio.value = False
+					if not SOFT_BTAUDIO:
+						config.av.btaudio.value = False
 				else:
 					config.btdevicesmanager.audioaddress.value = current[1]
 					config.btdevicesmanager.audioconnect.value = True
-					config.av.btaudio.value = True
+					if not SOFT_BTAUDIO:
+						config.av.btaudio.value = True
 				applyBTAudioState()
 				self.selectionChanged()
 
@@ -371,14 +440,21 @@ class BluetoothDevicesTask:
 def sessionstart(session, reason, **kwargs):
 	global iBluetoothDevicesTask
 	if reason == 0:
-		if isfile("/proc/stb/audio/btaudio"):
+		if SOFT_BTAUDIO:
+			# Stay on HDMI until the stored audio device is connected again.
+			setSoftBTAudioOutput(False)
+			if config.btdevicesmanager.audioconnect.value:
+				applyBTAudioState()
+		elif isfile(BTAUDIO_PROC):
 			applyBTAudioState()
 			if iBluetoothDevicesTask is None:
 				iBluetoothDevicesTask = BluetoothDevicesTask(session)
 
 
 def Plugins(**kwargs):
-	if fileCheck("/sys/class/bluetooth/hci0"):
+	# The internal UART controller of the soft BT audio boxes is attached
+	# in the background and may show up after the plugins are loaded.
+	if fileCheck("/sys/class/bluetooth/hci0") or SOFT_BTAUDIO:
 		return [
 			PluginDescriptor(where=[PluginDescriptor.WHERE_SESSIONSTART], fnc=sessionstart),
 			PluginDescriptor(name=_("Bluetooth Devices Manager"), description=_("This is bt devices manager"), icon="plugin.png", where=PluginDescriptor.WHERE_PLUGINMENU, fnc=main)
