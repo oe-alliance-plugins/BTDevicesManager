@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+from os import listdir
 from pexpect import EOF, TIMEOUT, spawnu
 from re import compile
 from subprocess import check_output
@@ -46,12 +47,30 @@ class Bluetoothctl:
         self.next_retry_at = 0
         self.start_thread = None
         self.start_lock = threading.Lock()
-        try:
-            check_output("rfkill unblock bluetooth", shell=True)
-        except Exception as e:
-            self.start_error = f"rfkill unblock bluetooth failed: {e}"
-            print(f"[BluetoothManager] {self.start_error}")
+        # Some drivers (Amlogic bt-dev) power-cycle the controller on every
+        # unblock, which drops the firmware loaded by hciattach.
+        if self._bluetooth_blocked():
+            try:
+                check_output("rfkill unblock bluetooth", shell=True)
+            except Exception as e:
+                self.start_error = f"rfkill unblock bluetooth failed: {e}"
+                print(f"[BluetoothManager] {self.start_error}")
         self._start_thread()
+
+    @staticmethod
+    def _bluetooth_blocked():
+        try:
+            for name in listdir("/sys/class/rfkill"):
+                path = f"/sys/class/rfkill/{name}"
+                with open(f"{path}/type") as fd:
+                    if fd.read().strip() != "bluetooth":
+                        continue
+                with open(f"{path}/soft") as fd:
+                    if fd.read().strip() == "1":
+                        return True
+        except OSError:
+            return True
+        return False
 
     def _start_thread(self, force=False):
         now = monotonic()

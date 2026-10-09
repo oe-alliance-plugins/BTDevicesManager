@@ -124,7 +124,7 @@ log "Reset /etc/asound.conf to default configuration"
 }
 
 bluetooth_asoundconf() {
-cat << EOF >> /etc/asound.conf
+cat << EOF >> "$ASOUND_TARGET"
 pcm.bluetooth {
     type plug
     slave.pcm {
@@ -143,15 +143,29 @@ ctl.bluetooth {
     type bluealsa
 }
 EOF
-log "Added Bluetooth device '$2' ($1) to /etc/asound.conf"
+log "Added Bluetooth device '$2' ($1) to $ASOUND_TARGET"
 }
+
+# Dreambox One/Two decode audio in software: enigma2 plays to the
+# Bluetooth sink itself, so keep the box asound.conf and skip the
+# capture/playback pipe.
+SOFT_BTAUDIO=0
+case "$(grep -m 1 '^model=' /usr/lib/enigma.info 2>/dev/null | cut -d'=' -f2 | tr -d "'\"")" in
+    dreamone|dreamtwo) SOFT_BTAUDIO=1 ;;
+esac
 
 rm -f "$STREAM_TOKENFILE"
 stop_pcm "$PLAYBACK_PIDFILE"
 stop_pcm "$CAPTURE_PIDFILE"
 
-log "Applying default sound configuration"
-default_asoundconf
+if [ "$SOFT_BTAUDIO" = "1" ]; then
+    ASOUND_TARGET=/etc/alsa/conf.d/90-btdevicesmanager.conf
+    rm -f "$ASOUND_TARGET"
+else
+    ASOUND_TARGET=/etc/asound.conf
+    log "Applying default sound configuration"
+    default_asoundconf
+fi
 
 if [ -n "$1" ]; then
     start_dbus || exit 1
@@ -183,7 +197,13 @@ if [ -n "$1" ]; then
     bluetoothname="$(bluetoothctl info "$bluetoothaddr" | grep "Name" | cut -d ':' -f 2 | xargs)"
     log "Device name detected: $bluetoothname"
 
+    [ "$SOFT_BTAUDIO" = "1" ] && mkdir -p "$(dirname "$ASOUND_TARGET")"
     bluetooth_asoundconf "$bluetoothaddr" "$bluetoothname"
+
+    if [ "$SOFT_BTAUDIO" = "1" ]; then
+        log "Script finished"
+        exit 0
+    fi
 
     log "Starting audio streaming to Bluetooth device"
     printf '%s\n' "$$" > "$STREAM_TOKENFILE"
