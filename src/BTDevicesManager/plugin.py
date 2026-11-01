@@ -56,7 +56,7 @@ def isSoftBTAudio():
 	try:
 		with open("/usr/lib/enigma.info") as fd:
 			for line in fd:
-				if line.startswith("model="):
+				if line.startswith("machinebuild="):
 					return line.split("=", 1)[1].strip().strip("'\"") in ("dreamone", "dreamtwo")
 	except OSError:
 		pass
